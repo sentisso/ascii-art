@@ -1,0 +1,2 @@
+- [ ] rewrite README.md to english
+- [ ] fix responsive thumbnails
