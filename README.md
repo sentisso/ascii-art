@@ -1,5 +1,6 @@
 # ASCII art
 Autor: sentisso
+TODO: translate the readme
 
 ## Chování programu:
 - **spuštění:** Po spuštění bude uživatel vyzván k definování ASCII přechodu, pomocí kterého by rád generoval obrázky
