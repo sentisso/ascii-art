@@ -1,5 +1,6 @@
 # ASCII art
 Autor: sentisso
+
 TODO: translate the readme
 
 ## Chování programu:
