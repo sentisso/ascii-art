@@ -1,8 +1,25 @@
 # ASCII art
-Autor: sentisso
+Author: sentisso
 
-TODO: translate the readme
+# Dependencies
+- `g++` - this compiler _should_ already be installed on your linux system
+- `make` - this _should_ also already be installed on your linux system
+- `libjpeg` - install package `libjpeg-dev` (for example `yum -y install libjpeg*` on RHEL 8)
+- `libpng` - install package `libpng-dev` (for example `yum -y install libpng*` on RHEL 8)
 
+# How to run
+1. download or clone the project
+2. `cd ascii-art/`
+3. `make run`
+4. follow the instructions on the screen
+5. you can try some of the images in the assets (eg. `./assets/tests/ok/jpg/a21.jpg` <- toast cat)
+
+# Usage
+- **zooming:** the program reacts to the terminal text zoom (so if you zoom out the terminal, the ASCII image will be more detailed)
+- **resizing:** also you can resize the terminal window to make the picture bigger
+- **coloring:** do not forget to enable colors by pressing "c"! If your terminal supports it...
+
+# User documentation in czech
 ## Chování programu:
 - **spuštění:** Po spuštění bude uživatel vyzván k definování ASCII přechodu, pomocí kterého by rád generoval obrázky
 - **náhrání prvního obrázku:**
