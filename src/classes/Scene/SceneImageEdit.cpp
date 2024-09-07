@@ -277,12 +277,12 @@ void SceneImageEdit::input(int ch)
 void SceneImageEdit::toggle_colors()
 {
     Image* img = _controller.m_scenes.gallery.get_active_image();
-    if (COLORS == 256 && img != nullptr)
-    {
-        img->m_adjustments.colors_enabled = !img->m_adjustments.colors_enabled;
-        img->render(_win.main);
-        render_keymap();
-    }
+
+    if (COLORS != 256 || img == nullptr) return;
+
+	img->m_adjustments.colors_enabled = !img->m_adjustments.colors_enabled;
+	img->render(_win.main);
+	render_keymap();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -290,24 +290,24 @@ void SceneImageEdit::toggle_colors()
 void SceneImageEdit::toggle_hdr()
 {
     Image* img = _controller.m_scenes.gallery.get_active_image();
-    if (COLORS == 256 && img != nullptr)
-    {
-        img->m_adjustments.hdr = !img->m_adjustments.hdr;
-        img->render(_win.main);
-        render_keymap();
-    }
+
+	if (COLORS != 256 || img == nullptr) return;
+
+	img->m_adjustments.hdr = !img->m_adjustments.hdr;
+	img->render(_win.main);
+	render_keymap();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
 void SceneImageEdit::toggle_background()
 {
-    if (_controller.m_scenes.gallery.change_background())
-    {
-        _controller.m_scenes.gallery.get_active_image()->render(_win.main);
-        render_settings();
-        render_keymap();
-    }
+	// if changing the background failed
+	if (!_controller.m_scenes.gallery.change_background()) return;
+
+	_controller.m_scenes.gallery.get_active_image()->render(_win.main);
+	render_settings();
+	render_keymap();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

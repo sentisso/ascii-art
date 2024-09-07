@@ -292,13 +292,12 @@ void SceneGallery::input(int ch)
 
 void SceneGallery::change_image(uint16_t index)
 {
-    if (_controller.m_images.size() > index)
-    {
-        m_active_image = index;
-        render_thumbnails();
-        render_top();
-        get_active_image()->render(_win.main);
-    }
+	if (_controller.m_images.size() <= index) return;
+
+	m_active_image = index;
+	render_thumbnails();
+	render_top();
+	get_active_image()->render(_win.main);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -349,27 +348,26 @@ void SceneGallery::input_timeout()
 bool SceneGallery::change_background()
 {
     Image* img = get_active_image();
-    
-    if (COLORS == 256 && img != nullptr && img->m_adjustments.colors_enabled)
-    {
-        switch (_background)
-        {
-            case -1:
-                _background = 232;
-                break;
-            case 232:
-                _background = 231;
-                break;
-            case 231:
-                _background = -1;
-                break;
-        }
 
-        _gui.reset_colors(_background);
+	if (COLORS != 256 || img == nullptr || !img->m_adjustments.colors_enabled)
+		return false;
 
-        return true;
-    }
-    return false;
+	switch (_background)
+	{
+		case -1:
+			_background = 232;
+			break;
+		case 232:
+			_background = 231;
+			break;
+		case 231:
+			_background = -1;
+			break;
+	}
+
+	_gui.reset_colors(_background);
+
+	return true;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -377,14 +375,13 @@ bool SceneGallery::change_background()
 void SceneGallery::toggle_colors()
 {
     Image* img = get_active_image();
-    
-    if (COLORS == 256 && img != nullptr)
-    {
-        img->m_adjustments.colors_enabled = !img->m_adjustments.colors_enabled;
 
-        img->render(_win.main);
-        render_keymap();
-    }
+	if (COLORS != 256 || img == nullptr) return;
+
+	img->m_adjustments.colors_enabled = !img->m_adjustments.colors_enabled;
+
+	img->render(_win.main);
+	render_keymap();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -392,13 +389,13 @@ void SceneGallery::toggle_colors()
 void SceneGallery::toggle_hdr()
 {
     Image* img = get_active_image();
-    if (COLORS == 256 && img != nullptr)
-    {
-        img->m_adjustments.hdr = !img->m_adjustments.hdr;
-        
-        img->render(_win.main);
-        render_keymap();
-    }
+
+	if (COLORS != 256 || img == nullptr) return;
+
+	img->m_adjustments.hdr = !img->m_adjustments.hdr;
+
+	img->render(_win.main);
+	render_keymap();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -425,8 +422,8 @@ void SceneGallery::move_active_image(bool left)
 
 Image* SceneGallery::get_active_image()
 {
-    if (_controller.m_images.size() > 0 && m_active_image < _controller.m_images.size())
-        return _controller.m_images[m_active_image].get();
-    
-    return nullptr;
+	if (_controller.m_images.size() <= 0 || m_active_image >= _controller.m_images.size())
+		return nullptr;
+
+	return _controller.m_images[m_active_image].get();
 }

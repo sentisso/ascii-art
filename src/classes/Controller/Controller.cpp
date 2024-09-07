@@ -24,35 +24,33 @@ void Controller::listen_for_input()
     nodelay(stdscr, TRUE);
     while (!_terminated)
     {
-        if ((ch = getch()) != ERR || _timeout > 0)
-        {
-            synchronize_timeout(ch);
+		if ((ch = getch()) == ERR && _timeout <= 0) continue;
 
-            switch (ch)
-            {
-                case ctrl('c'):
-                    quit();
-                    break;
-                case ctrl('d'):
-                    quit();
-                    break;
-                // F2 is reserved for keymap's "less..."
-                case KEY_F(2):
-                    _gui.less_keymap();
-                    break;
-                // F3 is reserved for keymap's "more..."
-                case KEY_F(3):
-                    _gui.more_keymap();
-                    break;
-                case KEY_RESIZE:
-                    _gui.rewin();
-                    _active_scene->render();
-                    break;
-                    
-                default:
-                    _active_scene->input(ch);
-            }
-        }
+		synchronize_timeout(ch);
+		switch (ch)
+		{
+			case ctrl('c'):
+				quit();
+				break;
+			case ctrl('d'):
+				quit();
+				break;
+			// F2 is reserved for keymap's "less..."
+			case KEY_F(2):
+				_gui.less_keymap();
+				break;
+			// F3 is reserved for keymap's "more..."
+			case KEY_F(3):
+				_gui.more_keymap();
+				break;
+			case KEY_RESIZE:
+				_gui.rewin();
+				_active_scene->render();
+				break;
+
+			default:
+				_active_scene->input(ch);
+		}
     }
 }
 

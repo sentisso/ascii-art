@@ -52,41 +52,44 @@ void Image::render(window & win)
             if (char_count > 0)
             {
                 for (uint32_t y = 0; y < bmp.height; ++y)
-                    for (size_t x = 0; x < bmp.width; ++x)
-                        if (bmp.amp[y][x].first == m_ascii_gradient->at(i))
-                        {
-                            // if the character has a color...
-                            if (bmp.amp[y][x].second != -1 && m_adjustments.colors_enabled)
-                            {
-                                if (m_adjustments.hdr)
-                                    wattron(win.win, COLOR_PAIR(bmp.amp[y][x].second) | A_REVERSE);
-                                else
-                                    wattron(win.win, COLOR_PAIR(bmp.amp[y][x].second));
-                            }
+				{
+					for (size_t x = 0; x < bmp.width; ++x)
+					{
+						if (bmp.amp[y][x].first != m_ascii_gradient->at(i)) continue;
 
-                            mvwaddch(win.win, y, x + abs_x, bmp.amp[y][x].first);
+						// if the character has a color...
+						if (bmp.amp[y][x].second != -1 && m_adjustments.colors_enabled)
+						{
+							if (m_adjustments.hdr)
+								wattron(win.win, COLOR_PAIR(bmp.amp[y][x].second) | A_REVERSE);
+							else
+								wattron(win.win, COLOR_PAIR(bmp.amp[y][x].second));
+						}
 
-                            if (bmp.amp[y][x].second != -1 && m_adjustments.colors_enabled)
-                            {
-                                if (m_adjustments.hdr)
-                                    wattroff(win.win, COLOR_PAIR(bmp.amp[y][x].second) | A_REVERSE);
-                                else
-                                    wattroff(win.win, COLOR_PAIR(bmp.amp[y][x].second));
-                            }
+						mvwaddch(win.win, y, x + abs_x, bmp.amp[y][x].first);
 
-                            // if there are no characters of the same type left...
-                            if (--char_count == 0)
-                            {
-                                // ...then there's no need to iterate through the amp and look for it anymore
-                                y = bmp.height;
-                                break;
-                            }
-                        }
+						if (bmp.amp[y][x].second != -1 && m_adjustments.colors_enabled)
+						{
+							if (m_adjustments.hdr)
+								wattroff(win.win, COLOR_PAIR(bmp.amp[y][x].second) | A_REVERSE);
+							else
+								wattroff(win.win, COLOR_PAIR(bmp.amp[y][x].second));
+						}
+
+						// if there are no characters of the same type left...
+						if (--char_count == 0)
+						{
+							// ...then there's no need to iterate through the amp and look for it anymore
+							y = bmp.height;
+							break;
+						}
+					}
+				}
 
                 wrefresh(win.win);
                 nanosleep(&ts, NULL);
                 // creates an easing effect
-                ts.tv_nsec += 50000L; // + 0.5ms 
+                ts.tv_nsec += 50000L; // + 0.5ms
             }
         }
     }
@@ -125,7 +128,7 @@ void Image::to_ascii(uint16_t max_width, uint16_t max_height, Bitmap<depth> & bm
 {
     // if the bounds didn't change and the adjustments were applied, then don't convert it
     if (bmp.bounds_y == max_height && bmp.bounds_x == max_width && bmp.adjustments == m_adjustments) return;
-    
+
     shrink_to_fit(max_width, max_height, bmp);
 
     uint8_t gray;
@@ -143,9 +146,9 @@ void Image::to_ascii(uint16_t max_width, uint16_t max_height, Bitmap<depth> & bm
             // most left character is the brightest in the ascii gradient
             // but grayscale black is 0, therefore 0 != index of the darkest character
             char c = m_ascii_gradient->at(m_ascii_gradient->size() - 1 - (int) round(gray * m_ascii_gradient->size() / 256));
-            
+
             bmp.amp_used_chars[(int) c]++; // register the used char
-            
+
             if (bmp.amp[y].size() == x)
                 bmp.amp[y].push_back({c, get_xterm_pixel(y, x, bmp)});
             else
@@ -163,11 +166,11 @@ void Image::shrink_to_fit(uint16_t max_width, uint16_t max_height, Bitmap<depth>
         return;
 
     Bitmap<depth> * src = &dst;
-    
+
     // if the given bitmap is suppose to be "upsampled" (the given bounds are greater than the last ones)
     if (dst.bounds_y != 0 && dst.bounds_x != 0 && (dst.bounds_y < max_height || dst.bounds_x < max_width))
         src = &m_bmp_original;
-    
+
     if (dst.adjustments.stretch != m_adjustments.stretch || dst.bmp.size() == 0)
         src = &m_bmp_original;
 
@@ -182,14 +185,14 @@ void Image::shrink_to_fit(uint16_t max_width, uint16_t max_height, Bitmap<depth>
     if (sample_ratio >= 2)
     {
         downsample_grid_average(std::min(sample_ratio.m_x, sample_ratio.m_y), dst, *src);
-        
+
         // either way the src now needs to be the dst itself, cause it already got downsampled (no need for the original)
         src = &dst;
-        
+
         // downsample_grid_average only works with a whole number as the ratio, therefore the original downsample ratio
         // needs to be recalculated
         sample_ratio = get_downsample_ratio(max_width, max_height, dst);
-        
+
         if (sample_ratio.m_x < 1) sample_ratio.m_x = 1;
         if (sample_ratio.m_y < 1) sample_ratio.m_y = 1;
     }
@@ -203,19 +206,19 @@ void Image::shrink_to_fit(uint16_t max_width, uint16_t max_height, Bitmap<depth>
 void Image::downsample_grid_average(uint16_t downsample_ratio, Bitmap<depth> & dst, Bitmap<depth> & src)
 {
     dst.adjust({downsample_ratio, downsample_ratio}, src);
-    
+
     uint32_t grid_size = downsample_ratio * downsample_ratio;
 
     for (uint32_t i = 0; i < dst.height; ++i)
     {
         dst.reserve(i);
-        
+
         uint32_t y = i * downsample_ratio;
-        
+
         for (uint32_t j = 0; j < dst.row_bytes; j += dst.channels)
         {
             uint32_t x = j * downsample_ratio;
-            
+
             // for each color channel (RGB or RGBA etc.)
             for (uint8_t ch = 0; ch < dst.channels; ++ch)
             {
@@ -227,7 +230,7 @@ void Image::downsample_grid_average(uint16_t downsample_ratio, Bitmap<depth> & d
                         avg += src[y + gy][x + gx];
 
                 x++; // next color channel
-                    
+
                 dst[i][j + ch] = avg / grid_size;
             }
         }
@@ -239,18 +242,18 @@ void Image::downsample_grid_average(uint16_t downsample_ratio, Bitmap<depth> & d
 void Image::sample_bilinear_interpolation(Vector<double> & sample_ratio, Bitmap<depth> & dst, Bitmap<depth> & src)
 {
     dst.adjust(sample_ratio, src);
-    
+
     // i = y of the dst
     for (uint32_t i = 0; i < dst.height; ++i)
     {
         dst.reserve(i);
-        
+
         // y = y of the src
         double y = i * sample_ratio.m_y;
 
         uint32_t y_f = floor(y);
         uint32_t y_c = ceil(y);
-        
+
         if (y_c >= src.height)
             y_c = y_f;
 
@@ -268,7 +271,7 @@ void Image::sample_bilinear_interpolation(Vector<double> & sample_ratio, Bitmap<
 
             uint32_t x_f = floor(x) * dst.channels;
             uint32_t x_c = ceil(x) * dst.channels;
-            
+
             if (x_c >= src.row_bytes)
                 x_c = x_f;
 
@@ -321,14 +324,14 @@ Vector<double> Image::get_downsample_ratio(uint16_t max_width, uint16_t max_heig
     // if the given bitmap hasn't been malloced yet, then reference the original bitmap
     uint32_t width = bmp.bmp.size() == 0 ? m_bmp_original.width : bmp.width;
     uint32_t height = bmp.bmp.size() == 0 ? m_bmp_original.height : bmp.height;
-    
+
     double stretch = 1;
-    
+
     if (bmp.adjustments.stretch != m_adjustments.stretch)
         stretch = 1 + (double) m_adjustments.stretch / 100;
-    
+
     width *= stretch;
-    
+
     // if "there's room" for the image (even with the stretch), then shrink the height instead
     if (width <= max_width && height <= max_height) return {1, stretch};
 
@@ -336,7 +339,7 @@ Vector<double> Image::get_downsample_ratio(uint16_t max_width, uint16_t max_heig
     double hratio = (double) height / max_height;
 
     double ratio = wratio > hratio ? wratio : hratio;
-    
+
     return {ratio / stretch, ratio};
 }
 
@@ -402,7 +405,7 @@ uint8_t Image::truncate_uint8(int16_t value)
 {
     if (value < 0) return 0;
     else if (value > 0xFF) return 0xFF;
-    
+
     return value;
 }
 

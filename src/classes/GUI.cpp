@@ -226,7 +226,7 @@ void GUI::render_keymap(uint8_t last_keymap)
         // if the next next keymap + the "F2 more" don't fit into the screen...
         if (
             i + 2 < _keymap.size() && 
-            offset + _keymap[i+1].first.length() + 1 + _keymap[i+1].second.length() + 3 + key_more_len > _win.main.x
+            offset + _keymap[i + 1].first.length() + 1 + _keymap[i + 1].second.length() + 3 + key_more_len > _win.main.x
         )
         {
             // ...then print the "F2 more" a break it here
